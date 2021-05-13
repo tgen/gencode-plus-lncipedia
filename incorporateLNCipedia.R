@@ -30,7 +30,7 @@ lncipedia5.2.df <- as.data.frame(lncipedia5.2)
 geneIDs <- read.table("lncipedia_5_2_ensembl_92_genes.txt", header = TRUE)
 
 # import 92 to 94 table, remove retired IDs
-ens94 <- read.csv("../sourceFiles/ens94GeneUpdate.csv", header = FALSE)
+ens94 <- read.csv("ens94GeneUpdate.csv", header = FALSE)
 ens94 <- ens94[grep("retired", ens94$V2, invert = TRUE),]
 ens94$V2 <- as.character(ens94$V2)
 
