@@ -16,14 +16,7 @@ R packages:
 
 
 
-Note 1: gtf can be converted to bed with eautils
-https://github.com/ExpressionAnalysis/ea-utils
-
-```
-ea-utils/clipper/gtf2bed gencode_v40.lncipedia_v5_2_hc.annotation.gtf > gencode_v40.lncipedia_v5_2_hc.annotation.bed12
-```
-
-or with ucsc tools
+Note 1: gtf can be converted to bed with ucsc tools
 http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/
 ```
 gtfToGenePred -genePredExt -geneNameAsName2 gencode_v40.lncipedia_v5_2_hc.annotation.gtf gene.tmp
