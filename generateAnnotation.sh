@@ -45,14 +45,21 @@ Rscript incorporateLNCipedia.R
 #create genes only file for gencode for intersectbed
 #use intersectbed to find overlapping genes (reciprocal 70%)
 #between the two annotations that aren't in the lncipedia conversion table
-grep 'ENSEMBL  gene' gencode.v40.primary_assembly.annotation.lncipediaRemoved.gtf >  gencode.v40.primary_assembly.annotation.lncipediaRemoved.ENSEMBLgenes.gtf
-grep 'HAVANA   gene' gencode.v40.primary_assembly.annotation.lncipediaRemoved.gtf >  gencode.v40.primary_assembly.annotation.lncipediaRemoved.HAVANAgenes.gtf
+grep 'ENSEMBL  gene' gencode.v40.primary_assembly.annotation.lncipediaRemoved.gtf > gencode.v40.primary_assembly.annotation.lncipediaRemoved.ENSEMBLgenes.gtf
+grep 'HAVANA   gene' gencode.v40.primary_assembly.annotation.lncipediaRemoved.gtf > gencode.v40.primary_assembly.annotation.lncipediaRemoved.HAVANAgenes.gtf
 cat gencode.v40.primary_assembly.annotation.lncipediaRemoved.ENSEMBLgenes.gtf gencode.v40.primary_assembly.annotation.lncipediaRemoved.HAVANAgenes.gtf > gencode.v40.primary_assembly.annotation.lncipediaRemoved.genes.gtf
 
+#use -wa to output a gtf with the gencode genes that intersect
+# and -wb to output a txt file with the intersections from both annotations
 intersectBed -nonamecheck -wa -s -r -f 0.7 -a gencode.v40.primary_assembly.annotation.lncipediaRemoved.genes.gtf -b lncipedia_5_2_hc_hg38.genes.gtf > intersection.genes.gtf
+intersectBed -nonamecheck -wb -s -r -f 0.7 -a gencode.v40.primary_assembly.annotation.lncipediaRemoved.genes.gtf -b lncipedia_5_2_hc_hg38.genes.gtf > intersection.genes.txt
 
-#make list of ensembl IDs that intersect an remove from gencode annotation file
-awk -F"\t" '{print $9}' intersection.genes.gtf | awk -F';' '{print $1}' | sed 's/gene_id //g' | sed 's/"//g' | sort | uniq > intersection.IDs.txt
+#remove protein coding genes from intersection list
+grep -v 'protein_coding' intersection.genes.gtf > intersection.genes.nopc.gtf
+grep -v 'protein_coding' intersection.genes.txt > intersection.genes.nopc.txt
+
+#make list of ensembl IDs that intersect and remove from gencode annotation file
+awk -F"\t" '{print $9}' intersection.genes.nopc.gtf | awk -F';' '{print $1}' | sed 's/gene_id //g' | sed 's/"//g' | sort | uniq > intersection.IDs.txt
 grep -v -f intersection.IDs.txt gencode.v40.primary_assembly.annotation.lncipediaRemoved.gtf > gencode.v40.primary_assembly.annotation.lncipediaRemoved.nrd.gtf
 
 #extract only gene rows (exon rows will come from transcript file)
@@ -64,12 +71,12 @@ sort -k1,2n gencode_v40.lncipedia_v5_2_hc.annotation.tmp > gencode_v40.lncipedia
 rm gencode_v40.lncipedia_v5_2_hc.annotation.tmp
 
 #add headers
-sed -i '1i##date 2022-06-28' gencode_v40.lncipedia_v5_2_hc.annotation.gtf
-sed -i '1i##source-version rtracklayer 1.38.3' gencode_v40.lncipedia_v5_2_hc.annotation.gtf
+sed -i '1i##date 2022-08-08' gencode_v40.lncipedia_v5_2_hc.annotation.gtf
+sed -i '1i##source-version rtracklayer 1.54.0' gencode_v40.lncipedia_v5_2_hc.annotation.gtf
 sed -i '1i##format: gff-version 2' gencode_v40.lncipedia_v5_2_hc.annotation.gtf
 sed -i '1i##contact: ehutchins@tgen.org' gencode_v40.lncipedia_v5_2_hc.annotation.gtf
 sed -i '1i##provider: GENCODE, LNCipedia' gencode_v40.lncipedia_v5_2_hc.annotation.gtf
-sed -i '1i##description: evidence-based annotation of the human genome (GRCh38), version 40 (Ensembl 104) with added genes from LNCipedia, version 5.2' gencode_v40.lncipedia_v5_2_hc.annotation.gtf
+sed -i '1i##description: evidence-based annotation of the human genome (GRCh38), version 40 (Ensembl 106) with added genes from LNCipedia, version 5.2' gencode_v40.lncipedia_v5_2_hc.annotation.gtf
 
 
 #create transcriptome fasta

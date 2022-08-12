@@ -29,70 +29,36 @@ lncipedia.gtf <- "lncipedia_5_2_hc_hg38.formatted.gtf"
 lncipedia5.2 <- rtracklayer::import(lncipedia.gtf, format = "gtf")
 lncipedia5.2.df <- as.data.frame(lncipedia5.2)
 
-# import 92 to 104 table, remove retired IDs
-ens104 <- read.csv("ensembl104GeneUpdate.csv", header = TRUE)
-geneIDs.104 <- ens104[grep("retired", ens104$New.stable.ID, invert = TRUE),]
+# import 92 to 106 table, remove retired IDs
+ens106 <- read.csv("/Volumes/ehutchins/makeanno/ensembl106GeneUpdate.csv", header = TRUE)
+geneIDs.106 <- ens106[grep("retired", ens106$New.stable.ID, invert = TRUE),]
 
 # create list of intersection, unique, etc. -------------------------------------------------------
 gencode40.ensBase <- gsub("\\.(.*)","" , gencode40.genes$gene_id)
 gencode40.lnc.ensBase <- gsub("\\.(.*)","" , gencode40.lnc.genes$gene_id)
-lncipedia.ensBase <- gsub("\\.(.*)","" , geneIDs.104$ensemblGeneID)
+lncipedia.ensBase <- gsub("\\.(.*)","" , geneIDs.106$matching_ens_gene_id)
 
-lncipediaIntersection <- gencode40.genes[gencode40.ensBase %in% lncipedia.ensBase,] #11356 lncipedia ENSG IDs in gencode 40
+lncipediaIntersection <- gencode40.genes[gencode40.ensBase %in% lncipedia.ensBase,] #11360 lncipedia ENSG IDs in gencode 40
 
-gencodeUnique <- gencode40.genes[!gencode40.ensBase %in% lncipedia.ensBase,] #50242 gencode genes (all biotypes) not in lncipedia
-gencodeUnique.lncRNA <- gencode40.lnc.genes[!gencode40.lnc.ensBase %in% lncipedia.ensBase,] #6410 gencode genes (matching lncRNA biotype) not in lncipedia
+gencodeUnique <- gencode40.genes[!gencode40.ensBase %in% lncipedia.ensBase,] #50238 gencode genes (all biotypes) not in lncipedia
+gencodeUnique.lncRNA <- gencode40.lnc.genes[!gencode40.lnc.ensBase %in% lncipedia.ensBase,] #6408 gencode genes (matching lncRNA biotype) not in lncipedia
 
 gencodeTable <- table(gencode40.genes$gene_type)["lncRNA"]
 lncipediaTable <- table(lncipediaIntersection$gene_type) #biotype of lncRNA in intersection of two annotations
 
-gencodeKeep <- gencodeUnique #50242
+gencodeKeep <- gencodeUnique #50238
 
 #same list for transcripts
-gencodeTranscriptTable <- table(subset(gencode40.df, type == "transcript")$transcript_type)
-#lncipediaTranscriptIntersection <- subset(gencode40.df, type == "transcript")[gencode40.genes$transcript_id %in% geneIDs.104$ensemblGeneID,] #13206 lncipedia ENSG IDs in gencode 40
-lncipediaTranscriptIntersection <- lncipediaIntersection[lncipediaIntersection$transcript_type %in% lncBiotypes,] #13206: same number 
-
-# make venn diagram highlighting changes -----------------------------------------------------------
-# calculate gene totals
-# note these include an additional 8848 genes found via intersectBed
-gencode.gene.total <- sum(gencodeTable) + 8848
-lncipedia.gene.total <- length(unique(lncipedia5.2$gene_id))
-intersection.gene.total <- sum(lncipediaTable) + 8848
-
-dir.create("img")
-dev.off()
-tmp <- draw.pairwise.venn(gencode.gene.total,
-                          lncipedia.gene.total,
-                          intersection.gene.total, #additional 8848 genes from intersectBed
-                          category = c("GENCODE 40", "lncipedia 5.2"),
-                          fill = c("#00AFBB", "#E7B800"),
-                          cex = c(4,4,4),
-                          cat.cex = c(4,4),
-                          alpha = rep(0.5, 2), cat.pos = c(0, -40), cat.dist = c(0.03, 0.10))
+#gencodeTranscriptTable <- table(subset(gencode40.df, type == "transcript")$transcript_type)
+#lncipediaTranscriptIntersection <- subset(gencode40.df, type == "transcript")[gencode40.genes$transcript_id %in% geneIDs.106$ensemblGeneID,] #13206 lncipedia ENSG IDs in gencode 40
+#lncipediaTranscriptIntersection <- lncipediaIntersection[lncipediaIntersection$transcript_type %in% lncBiotypes,] #13206: same number 
 
 
-png("img/lncRNA_gene_venn.png", width = 800, height = 800)
-grid.draw(tmp)
-dev.off()
-
-
-
-# tmp2 <- draw.pairwise.venn(sum(gencodeTranscriptTable),
-#                           length(unique(lncipedia5.2$transcript_id)),
-#                           sum(lncipediaTable),
-#                           category = c("GENCODE 40", "lncipedia 5.2"),
-#                           fill = c("#00AFBB", "#E7B800"),
-#                           alpha = rep(0.5, 2), cat.pos = c(-105, 135), cat.dist = rep(0.08, 2))
-# 
-# png("img/lncRNA_transcript_venn.png")
-# grid.draw(tmp)
-# dev.off()
 
 #create gencode gtf with lncipedia genes removed and export -----------------------------------------
 gtfNew <- gencode40[gencode40$gene_id %in% gencodeUnique$gene_id,]
 
-export(gtfNew, 'gencode.v40.primary_assembly.annotation.lncipediaRemoved.gtf')
+export(gtfNew, '/Volumes/ehutchins-1/makeanno/gencode.v40.primary_assembly.annotation.lncipediaRemoved.gtf')
 
 #add gene level info to lncipedia annotation since it is exons only and export ----------------------
 #see:
@@ -123,3 +89,36 @@ tr <- unlist(trl)
 export.gff2(unlist(trl), "lncipedia_5_2_hc_hg38.transcripts.gtf")
 
 
+# make venn diagram highlighting changes -----------------------------------------------------------
+# calculate gene totals
+# note these include an additional 8270 genes found via intersectBed
+gencode.gene.total <- sum(gencodeTable) + 8247 #25995
+lncipedia.gene.total <- length(unique(lncipedia5.2$gene_id)) #49372
+intersection.gene.total <- sum(lncipediaTable) + 8247 #19607
+
+dir.create("img")
+dev.off()
+tmp <- draw.pairwise.venn(gencode.gene.total,
+                          lncipedia.gene.total,
+                          intersection.gene.total, #additional 8848 genes from intersectBed
+                          category = c("GENCODE 40", "lncipedia 5.2"),
+                          fill = c("#00AFBB", "#E7B800"),
+                          cex = c(4,4,4),
+                          cat.cex = c(4,4),
+                          alpha = rep(0.5, 2), cat.pos = c(0, -40), cat.dist = c(0.03, 0.10))
+
+
+png("img/lncRNA_gene_venn.png", width = 800, height = 800)
+grid.draw(tmp)
+dev.off()
+
+# tmp2 <- draw.pairwise.venn(sum(gencodeTranscriptTable),
+#                           length(unique(lncipedia5.2$transcript_id)),
+#                           sum(lncipediaTable),
+#                           category = c("GENCODE 40", "lncipedia 5.2"),
+#                           fill = c("#00AFBB", "#E7B800"),
+#                           alpha = rep(0.5, 2), cat.pos = c(-105, 135), cat.dist = rep(0.08, 2))
+# 
+# png("img/lncRNA_transcript_venn.png")
+# grid.draw(tmp)
+# dev.off()
