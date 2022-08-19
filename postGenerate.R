@@ -101,16 +101,16 @@ TEC.Biotypes <- c("TEC")
 
 genes.anno <- genes.anno %>% mutate(biotype_class = "unknown")
 genes.anno$biotype_class[genes.anno$gene_type %in% pcBiotypes] <- "protein_coding"
-genes.anno$biotype_class[genes.anno$gene_type %in% lncBiotypes] <- "short_noncoding"
-genes.anno$biotype_class[genes.anno$gene_type %in% short.ncBiotypes] <- "long_noncoding"
+genes.anno$biotype_class[genes.anno$gene_type %in% lncBiotypes] <- "long_noncoding"
+genes.anno$biotype_class[genes.anno$gene_type %in% short.ncBiotypes] <- "short_noncoding"
 genes.anno$biotype_class[genes.anno$gene_type %in% pseudogeneBiotypes] <- "pseudogene"
 genes.anno$biotype_class[genes.anno$gene_type %in% TEC.Biotypes] <- "TEC"
 unique(genes.anno$biotype_class) #checking
 
 transcripts.anno <- transcripts.anno %>% mutate(biotype_class = "unknown")
 transcripts.anno$biotype_class[transcripts.anno$transcript_type %in% pcBiotypes] <- "protein_coding"
-transcripts.anno$biotype_class[transcripts.anno$transcript_type %in% lncBiotypes] <- "short_noncoding"
-transcripts.anno$biotype_class[transcripts.anno$transcript_type %in% short.ncBiotypes] <- "long_noncoding"
+transcripts.anno$biotype_class[transcripts.anno$transcript_type %in% lncBiotypes] <- "long_noncoding"
+transcripts.anno$biotype_class[transcripts.anno$transcript_type %in% short.ncBiotypes] <- "short_noncoding"
 transcripts.anno$biotype_class[transcripts.anno$transcript_type %in% pseudogeneBiotypes] <- "pseudogene"
 transcripts.anno$biotype_class[transcripts.anno$transcript_type %in% TEC.Biotypes] <- "TEC"
 unique(transcripts.anno$biotype_class) #checking
