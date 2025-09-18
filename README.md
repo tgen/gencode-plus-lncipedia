@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/261301485.svg)](https://doi.org/10.5281/zenodo.17154935)
+
 Combines [GENCODE40](https://www.gencodegenes.org/human/release_40.html) and [lncipedia5.2](https://lncipedia.org/) gene annotations in a non-redundant manner.
 
 Can be run with the following command:
